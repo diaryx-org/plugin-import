@@ -384,7 +384,7 @@ fn format_entry(entry: &ImportedEntry, entry_path: &str, month_index_canonical: 
     }
 
     // part_of: link to month index.
-    let (year, month, _) = date_components_from_datetime(entry.date);
+    let (year, month, _) = date_components(entry);
     let month_title = format!("{year}-{month}");
     fm.insert(
         "part_of".to_string(),
@@ -427,17 +427,19 @@ fn format_entry(entry: &ImportedEntry, entry_path: &str, month_index_canonical: 
 
 /// Extract (year, month, date_prefix) from an entry's date or fall back to today.
 fn date_components(entry: &ImportedEntry) -> (String, String, String) {
-    date_components_from_datetime(entry.date)
-}
+    if let Some(dt) = entry.date {
+        let year = dt.format("%Y").to_string();
+        let month = dt.format("%m").to_string();
+        let date_prefix = dt.format("%Y-%m-%d").to_string();
+        return (year, month, date_prefix);
+    }
 
-fn date_components_from_datetime(
-    dt: Option<chrono::DateTime<chrono::Utc>>,
-) -> (String, String, String) {
-    let dt = dt.unwrap_or_else(chrono::Utc::now);
-    let year = dt.format("%Y").to_string();
-    let month = dt.format("%m").to_string();
-    let date_prefix = dt.format("%Y-%m-%d").to_string();
-    (year, month, date_prefix)
+    // Keep imports deterministic when source entries do not include a date.
+    (
+        "1970".to_string(),
+        "01".to_string(),
+        "1970-01-01".to_string(),
+    )
 }
 
 /// Create a URL-safe slug from a title, or fall back to "untitled".
