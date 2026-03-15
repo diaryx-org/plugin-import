@@ -2,7 +2,7 @@
 title: "Import"
 description: "Import entries from Day One, Markdown directories, and other formats"
 id: "diaryx.import"
-version: "0.1.1"
+version: "0.1.2"
 author: "Diaryx Team"
 license: "PolyForm Shield 1.0.0"
 repository: "https://github.com/diaryx-org/plugin-import"

@@ -1,6 +1,6 @@
 [package]
 name = "diaryx_import_extism"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 rust-version = "1.91"
 license-file = "LICENSE.md"
@@ -14,8 +14,8 @@ default = ["markdown-import"]
 markdown-import = ["diaryx_core/import-markdown"]
 
 [dependencies]
-diaryx_core = { path = "../diaryx/crates/diaryx_core", version = "1.3.1", features = ["import-dayone"] }
-diaryx_plugin_sdk = { path = "../plugin-sdk", features = ["core", "files", "getrandom-shim"] }
+diaryx_core = { git = "https://github.com/diaryx-org/diaryx.git", subdirectory = "crates/diaryx_core", version = "1.3.1", features = ["import-dayone"] }
+diaryx_plugin_sdk = { git = "https://github.com/diaryx-org/plugin-sdk.git", features = ["core", "files", "getrandom-shim"] }
 extism-pdk = "1.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
