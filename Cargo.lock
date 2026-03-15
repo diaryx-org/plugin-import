@@ -151,9 +151,7 @@ dependencies = [
 
 [[package]]
 name = "diaryx_core"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8611407e1f5a3ec301e83a4429d601d121fa9ada99ff1503057c8d5c8e3ad90b"
+version = "1.3.2"
 dependencies = [
  "async-trait",
  "base64",
@@ -182,12 +180,23 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "diaryx_core",
+ "diaryx_plugin_sdk",
  "extism-pdk",
- "getrandom 0.3.4",
  "indexmap",
  "serde",
  "serde_json",
  "serde_yaml",
+]
+
+[[package]]
+name = "diaryx_plugin_sdk"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "extism-pdk",
+ "getrandom 0.3.4",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

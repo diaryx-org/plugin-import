@@ -12,7 +12,7 @@ use diaryx_core::entry::prettify_filename;
 use diaryx_core::frontmatter;
 use diaryx_core::import::ImportResult;
 
-use crate::host_bridge;
+use diaryx_plugin_sdk::host;
 
 /// Directories to skip when walking a source tree.
 const SKIP_DIRS: &[&str] = &[
@@ -49,7 +49,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
 
     // --- Phase 1: Walk & classify ---
     // Use host_list_files to get all files, then derive directory structure.
-    let all_files = host_bridge::list_files(root)?;
+    let all_files = host::fs::list_files(root)?;
 
     let mut md_files: Vec<String> = Vec::new();
     let mut non_md_files: Vec<String> = Vec::new();
@@ -117,7 +117,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
 
         let is_index_by_contents = if !is_index_by_name {
             let full_path = join_path(root, rel_path);
-            match host_bridge::read_file(&full_path) {
+            match host::fs::read_file(&full_path) {
                 Ok(content) => match frontmatter::parse_or_empty(&content) {
                     Ok(parsed) => parsed.frontmatter.contains_key("contents"),
                     Err(_) => false,
@@ -204,7 +204,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
         let full_path = join_path(root, rel_path);
 
         // Idempotency: skip if part_of is already set
-        if let Ok(content) = host_bridge::read_file(&full_path)
+        if let Ok(content) = host::fs::read_file(&full_path)
             && let Ok(parsed) = frontmatter::parse_or_empty(&content)
         {
             if parsed.frontmatter.contains_key("part_of") {
@@ -217,7 +217,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
             fm.insert("part_of".to_string(), serde_yaml::Value::String(index_path));
 
             if let Ok(updated) = frontmatter::serialize(&fm, &parsed.body) {
-                match host_bridge::write_file(&full_path, &updated) {
+                match host::fs::write_file(&full_path, &updated) {
                     Ok(()) => {
                         result.imported += 1;
                     }
@@ -246,7 +246,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
         let full_path = join_path(root, &index_rel);
 
         // Idempotency: skip if file already exists
-        if host_bridge::file_exists(&full_path).unwrap_or(false) {
+        if host::fs::file_exists(&full_path).unwrap_or(false) {
             result.skipped += 1;
             continue;
         }
@@ -261,7 +261,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
         );
 
         let content = format_metadata_as_markdown(&metadata);
-        match host_bridge::write_file(&full_path, &content) {
+        match host::fs::write_file(&full_path, &content) {
             Ok(()) => {
                 result.imported += 1;
             }
@@ -283,7 +283,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
         let full_path = join_path(root, index_rel);
 
         // Check what's missing
-        let (has_part_of, has_contents, has_attachments) = match host_bridge::read_file(&full_path)
+        let (has_part_of, has_contents, has_attachments) = match host::fs::read_file(&full_path)
         {
             Ok(content) => match frontmatter::parse_or_empty(&content) {
                 Ok(parsed) => {
@@ -309,7 +309,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
         }
 
         // Re-read file to update
-        let content = match host_bridge::read_file(&full_path) {
+        let content = match host::fs::read_file(&full_path) {
             Ok(c) => c,
             Err(_) => continue,
         };
@@ -360,7 +360,7 @@ pub fn import_directory_in_place(root: &str) -> Result<ImportResult, String> {
         }
 
         if let Ok(updated) = frontmatter::serialize(&fm, &parsed.body) {
-            match host_bridge::write_file(&full_path, &updated) {
+            match host::fs::write_file(&full_path, &updated) {
                 Ok(()) => {
                     result.imported += 1;
                 }
